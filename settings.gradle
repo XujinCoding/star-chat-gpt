@@ -1,2 +1,12 @@
 rootProject.name = 'star-chat-gpt'
+include 'platform'
+include 'platform:platform-common'
+findProject(':platform:platform-common')?.name = 'platform-common'
+include 'service'
+include 'service:openai'
+findProject(':service:openai')?.name = 'openai'
+include 'service:openai:openai-api'
+findProject(':service:openai:openai-api')?.name = 'openai-api'
+include 'service:openai:openai-service'
+findProject(':service:openai:openai-service')?.name = 'openai-service'
 

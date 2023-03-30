@@ -1,19 +1,160 @@
-plugins {
-    id 'java'
+description 'star-chatGPT调用'
+
+//构建Gradle脚本自身需要的资源，可以声明的资源包括依赖项、第三方插件、maven仓库地址等。
+buildscript {
+    //设置仓库
+    repositories {
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'https://repo.spring.io/milestone' }
+    }
+    ext {
+        springBootVersion = '2.2.1.RELEASE'
+        springCloudVersion = 'Hoxton.RELEASE'
+        springCloudAlibabaVersion = '0.2.2.RELEASE'
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}//
+apply from: 'version.gradle'
+def all_ui_subject = []
+def all_service_subject = []
+def all_api_subject = []
+def all_ext_subject = []
+subprojects.each {
+    //it.subprojects.empty 可能是为了找到最下一层的项目
+    if (it.subprojects.empty && (it.name.endsWith('-api'))) {
+        all_api_subject << it
+    }
+    if (it.subprojects.empty && (!it.name.endsWith('-api') && !it.name.startsWith("common"))) {
+        all_ext_subject << it
+    }
+    if (it.subprojects.empty && (it.name.endsWith('-ui'))) {
+        all_ui_subject << it
+    }
+    if (it.subprojects.empty && (it.name.endsWith('-service'))) {
+        all_service_subject << it
+    }
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+//定义所有叶子节点的共有逻辑
+configure(allprojects.findAll { it.subprojects.empty }) {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'java-library'
+
+    repositories {
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'https://repo.spring.io/milestone' }
+    }
+    // dependencyManagement版本统一管理，类似于父maven的dependencyManagement
+    dependencyManagement {
+        dependencies {
+            for (depJar in rootProject.ext.dependencies) {
+                dependency depJar.value
+            }
+        }
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+            mavenBom "org.springframework.cloud:spring-cloud-alibaba-dependencies:${springCloudAlibabaVersion}"
+        }
+    }
+    dependencies {
+        //lang3
+        implementation 'org.apache.commons:commons-lang3:3.6'
+        //swagger
+        implementation 'io.springfox:springfox-swagger2'
+        implementation 'io.springfox:springfox-swagger-ui'
+        //jersey
+//        implementation 'org.glassfish.jersey.core:jersey-server:2.29.1'
+//        implementation 'org.glassfish.jersey.core:jersey-client:2.29.1'
+        //orika
+//        implementation 'ma.glasnost.orika:orika-core:1.5.4'
+        //fastjson
+        implementation 'com.alibaba:fastjson:2.0.7'
+        //lombok
+        annotationProcessor 'org.projectlombok:lombok:1.18.2'
+        compileOnly 'org.projectlombok:lombok:1.18.12'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.2'
+        testCompileOnly 'org.projectlombok:lombok:1.18.2'
+    }
+
+    group 'com.sa'
+    version '1.0-SNAPSHOT'
+
+    javadoc {
+        options.charSet = 'utf8'
+        options.encoding = 'utf8'
+        options.docEncoding = 'utf8'
+        options.memberLevel = JavadocMemberLevel.PRIVATE
+    }
+    test {
+        useJUnitPlatform()
+    }
 }
 
-test {
-    useJUnitPlatform()
+//定义所有 boot 项目依赖  没有common 和 Api
+configure(all_ext_subject) {
+    apply plugin: 'org.springframework.boot'
+    dependencies {
+        //spring-boot-web
+        implementation "org.springframework.boot:spring-boot-starter"
+        implementation "org.springframework.boot:spring-boot-starter-web"
+        //spring boot test
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        //Spring Jersey
+//        implementation 'org.springframework.boot:spring-boot-starter-jersey'
+        //openfeign
+        implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+        implementation 'io.github.openfeign:feign-jaxrs2:10.4.0'
+        implementation 'io.github.openfeign:feign-okhttp'
+        //common
+//        implementation project(':platform:platform-common')
+
+    }
+}
+
+configure(all_ui_subject) {
+    dependencies {
+        //boot-config
+//        implementation project(':platform:boot-config')
+    }
+}
+
+// 定义boot service工程共有的逻辑
+configure(all_service_subject) {
+    dependencies {
+        //AOP
+        implementation 'org.springframework.boot:spring-boot-starter-aop:2.7.2'
+        //oracle
+//        implementation 'com.oracle.database.jdbc:ojdbc8:21.1.0.0'
+        //druid 连接池
+//        api group: 'com.alibaba', name: 'druid', version: '1.1.18'
+        //JPA 的依赖引入
+//        implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.6'
+        //Mybatis-plus依赖
+//        implementation 'com.baomidou:mybatis-plus-boot-starter'
+        //SpringBoot redis的依赖
+//        implementation 'org.springframework.boot:spring-boot-starter-data-redis:2.7.0'
+        //flyway 依赖引入
+//        implementation 'org.flywaydb:flyway-core:5.2.4'
+        //boot-config
+//        implementation project(':platform:boot-config')
+    }
+}
+// 定义api工程共有的逻辑
+configure(all_api_subject) {
+    // api工程共同依赖的第三方jar包
+    dependencies {
+//        implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.5.RELEASE'
+//        implementation project(':platform:platform-common')
+    }
 }
