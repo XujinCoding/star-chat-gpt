@@ -87,7 +87,7 @@ configure(allprojects.findAll { it.subprojects.empty }) {
         testCompileOnly 'org.projectlombok:lombok:1.18.2'
     }
 
-    group 'com.sa'
+    group 'com.openai'
     version '1.0-SNAPSHOT'
 
     javadoc {
