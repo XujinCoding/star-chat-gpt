@@ -18,13 +18,14 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/open-ai")
 public class OpenAiController {
-    private static final Proxy PROXY = Proxys.http("167.179.75.185", 9902);
-    private static final String KEY = "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";
+    private static final Proxy PROXY = Proxys.http("127.0.0.1", 12177);
+    private static final String KEY = "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";
 
     private static final MessageMap MESSAGE_MAP = new MessageMap();
 
     @RequestMapping(value = "/message/{message}", method = RequestMethod.GET)
     private String getAnswerByMessage(@PathVariable("message") String message) {
+        System.out.println("访问成功");
         ChatGPT chatGPT = ChatGPT.builder()
                 .apiKey(KEY)
                 .proxy(PROXY)
@@ -39,6 +40,7 @@ public class OpenAiController {
     @GetMapping("/chat/sse")
     @CrossOrigin
     public SseEmitter sseEmitter(String prompt) {
+        System.out.println("访问成功");
         ChatGPTStream chatGPTStream = ChatGPTStream.builder()
                 .timeout(600)
                 .apiKey(KEY)
