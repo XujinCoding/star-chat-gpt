@@ -1,4 +1,4 @@
-package com.openai.domain;
+package com.star.domain;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +7,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author XuJ
+ */
 @Slf4j
 public class OpenAiSessionAttribute implements Serializable {
     private static final long serialVersionUID = -1L;

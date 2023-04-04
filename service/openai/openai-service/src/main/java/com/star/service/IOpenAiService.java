@@ -1,4 +1,4 @@
-package com.openai.service;
+package com.star.service;
 
 public interface IOpenAiService {
 

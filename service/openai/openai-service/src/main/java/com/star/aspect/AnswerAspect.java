@@ -1,4 +1,4 @@
-package com.openai.aspect;
+package com.star.aspect;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Slf4j
 public class AnswerAspect {
 
-    @Pointcut("execution(* com.openai.domain.SseEmitterDto.send(..))")
+    @Pointcut("execution(* com.star.domain.SseEmitterDto.send(..))")
     public void send() {
 
     }

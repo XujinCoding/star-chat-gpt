@@ -1,4 +1,4 @@
-package com.openai.domain;
+package com.star.domain;
 
 import lombok.Data;
 
@@ -8,5 +8,4 @@ import lombok.Data;
 @Data
 public class RequestReceiver {
     String message;
-    String key;
 }

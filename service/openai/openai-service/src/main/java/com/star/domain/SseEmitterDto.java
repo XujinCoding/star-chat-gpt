@@ -1,10 +1,13 @@
-package com.openai.domain;
+package com.star.domain;
 
-import com.openai.session.AppMessageSession;
+import com.star.session.MessageAppSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+/**
+ * @author XuJ
+ */
 @Slf4j
 public class SseEmitterDto extends SseEmitter {
     public SseEmitterDto(long timeOut) {
@@ -18,7 +21,7 @@ public class SseEmitterDto extends SseEmitter {
     }
     private void saveMessage(Object message){
         if (message!=null){
-            AppMessageSession.setCurrentMessage(AppMessageSession.getCurrentMessage()+message);
+            MessageAppSession.setCurrentAnswer(MessageAppSession.getCurrentAnswer()+message);
         }
     }
 }

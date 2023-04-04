@@ -1,15 +1,17 @@
-package com.openai.controller;
+package com.star.controller;
 
-import com.openai.domain.MessageMap;
-import com.openai.domain.RequestReceiver;
-import com.openai.domain.SseEmitterDto;
-import com.openai.session.AppMessageSession;
+import com.star.domain.*;
+import com.star.session.MessageAppSession;
+import com.star.session.WebAppSession;
+import com.star.util.OpenAiJwtUtils;
+import com.star.util.SecurityUtil;
 import com.plexpt.chatgpt.ChatGPT;
 import com.plexpt.chatgpt.ChatGPTStream;
 import com.plexpt.chatgpt.entity.chat.Message;
 import com.plexpt.chatgpt.listener.SseStreamListener;
 import com.plexpt.chatgpt.util.Proxys;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -19,41 +21,44 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/open-ai")
-public class OpenAiController {
-    private static final Proxy PROXY = Proxys.http("127.0.0.1", 4196);
+public class OpenAiController extends BasicController {
+    private static final Proxy PROXY = Proxys.http("127.0.0.1", 13764);
     private static final String KEY = "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";
 
 
     private static final MessageMap MESSAGE_MAP = new MessageMap();
 
     @RequestMapping(value = "/message/{message}", method = RequestMethod.GET)
-    private String getAnswerByMessage(@PathVariable("message") String message) {
+    private BasicResult getAnswerByMessage(@PathVariable("message") String message) {
         System.out.println("访问成功");
         ChatGPT chatGPT = ChatGPT.builder().apiKey(KEY).proxy(PROXY).apiHost("https://api.openai.com/").build().init();
 
-        return chatGPT.chat(message);
+        return buildDefaultObject(chatGPT.chat(message));
     }
 
 
     @GetMapping("/chat/sse")
     @CrossOrigin
-    public SseEmitter sseEmitter(RequestReceiver receiver) {
-        log.info("");
+    public SseEmitter sseEmitter(String question) {
+        if (StringUtils.isEmpty(question)){
+            throw new RuntimeException("问题不能为空");
+        }
+        log.info("访问成功");
         ChatGPTStream chatGPTStream = ChatGPTStream.builder()
                 .timeout(600)
-                .apiKey(receiver.getKey())
+                .apiKey(WebAppSession.getApiKey())
                 .proxy(PROXY)
                 .apiHost("https://api.openai.com/")
                 .build().init();
         SseEmitterDto sseEmitterDto = new SseEmitterDto(-1L);
-        List<Message> messages = MESSAGE_MAP.get(1);
+        List<Message> messages = MESSAGE_MAP.get(WebAppSession.getApiKey());
         SseStreamListener listener = new SseStreamListener(sseEmitterDto);
-        Message message = Message.of(receiver.getMessage());
+        Message message = Message.of(question);
         messages.add(message);
         listener.setOnComplate(msg -> {
             //回答完成，可以做一些事情
-            MESSAGE_MAP.put(1, messages);
-            MESSAGE_MAP.putAssistantMessage(1,AppMessageSession.getCurrentMessage());
+            MESSAGE_MAP.put(WebAppSession.getApiKey(), messages);
+            MESSAGE_MAP.putAssistantMessage(WebAppSession.getApiKey(), MessageAppSession.getCurrentAnswer());
         });
         chatGPTStream.streamChatCompletion(messages, listener);
         return sseEmitterDto;
@@ -61,10 +66,13 @@ public class OpenAiController {
 
     @GetMapping("/token")
     @CrossOrigin
-    public String getToken(String encrypted) {
-        log.info("获取信息");
-        return "";
+    public BasicResult getToken(Jwt jwt) {
+        log.info("-----------------正在获取Token");
+        try {
+            SecurityUtil securityUtil = new SecurityUtil();
+            return buildDefaultObject(securityUtil.encrypt(OpenAiJwtUtils.createJwtToken(jwt)));
+        } catch (Exception ignored) {
+            throw new RuntimeException("获取token失败");
+        }
     }
-
-
 }

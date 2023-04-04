@@ -1,4 +1,4 @@
-package com.openai.domain;
+package com.star.domain;
 
 import com.plexpt.chatgpt.entity.chat.Message;
 import org.springframework.util.CollectionUtils;
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class MessageMap extends HashMap<Object, List<Message>> {
     private static final Integer MAX_SIZE = 10;
-    public void putAssistantMessage(Integer key, String value) {
+    public void putAssistantMessage(Object key, String value) {
         Message message = Message.of(value);
         message.setRole(Message.Role.ASSISTANT.getValue());
         List<Message> messages = get(key);
