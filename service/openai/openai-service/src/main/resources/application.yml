@@ -1,2 +1,9 @@
 server:
   port: 9999
+spring:
+  application:
+    name: open-ai
+open:
+  ai:
+    proxy-ip: 127.0.0.1
+    proxy-port: 4231
