@@ -12,7 +12,8 @@ import java.util.List;
  * 每个Key 对应的List不能超过10 -> 每个人历史记录缓存不能超过10条
  */
 public class MessageMap extends HashMap<Object, List<Message>> {
-    private static final Integer MAX_SIZE = 10;
+    private static final Integer MAX_SIZE = 100;
+
     public void putAssistantMessage(Object key, String value) {
         Message message = Message.of(value);
         message.setRole(Message.Role.ASSISTANT.getValue());
@@ -23,9 +24,8 @@ public class MessageMap extends HashMap<Object, List<Message>> {
 
     @Override
     public List<Message> put(Object key, List<Message> value) {
-        value.get(value.size()-1).setRole(Message.Role.ASSISTANT.getValue());
-        if (value.size()>MAX_SIZE){
-            value.subList(value.size()-MAX_SIZE,value.size());
+        if (value.size() > MAX_SIZE) {
+            return super.put(key, value.subList(value.size() - MAX_SIZE, value.size()));
         }
         return super.put(key, value);
     }

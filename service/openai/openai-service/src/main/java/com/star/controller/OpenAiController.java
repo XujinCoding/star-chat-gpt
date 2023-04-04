@@ -42,25 +42,26 @@ public class OpenAiController extends BasicController {
         if (StringUtils.isEmpty(question)){
             throw new RuntimeException("问题不能为空");
         }
+        String apiKey = WebAppSession.getApiKey();
         log.info("访问成功");
         ChatGPTStream chatGPTStream = ChatGPTStream.builder()
                 .timeout(600)
-                .apiKey(WebAppSession.getApiKey())
+                .apiKey(apiKey)
                 .proxy(PROXY)
                 .apiHost("https://api.openai.com/")
                 .build().init();
-        SseEmitterDto sseEmitterDto = new SseEmitterDto(-1L);
-        List<Message> messages = MESSAGE_MAP.get(WebAppSession.getApiKey());
-        SseStreamListener listener = new SseStreamListener(sseEmitterDto);
+        SseEmitter sseEmitter = new SseEmitter(-1L);
+        List<Message> messages = MESSAGE_MAP.get(apiKey);
+        SseStreamListener listener = new SseStreamListener(sseEmitter);
         Message message = Message.of(question);
         messages.add(message);
         listener.setOnComplate(msg -> {
             //回答完成，可以做一些事情
-            MESSAGE_MAP.put(WebAppSession.getApiKey(), messages);
-            MESSAGE_MAP.putAssistantMessage(WebAppSession.getApiKey(), MessageAppSession.getCurrentAnswer());
+            MESSAGE_MAP.put(apiKey, messages);
+            MESSAGE_MAP.putAssistantMessage(apiKey, msg);
         });
         chatGPTStream.streamChatCompletion(messages, listener);
-        return sseEmitterDto;
+        return sseEmitter;
     }
 
     @GetMapping("/token")
