@@ -1,10 +1,10 @@
 package com.star.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.star.domain.BasicResult;
-import com.star.session.WebAppSession;
-import com.star.util.OpenAiJwtUtils;
-import com.star.util.SecurityUtil;
+import com.star.web.result.BasicResult;
+import com.star.web.session.WebAppSession;
+import com.star.util.JwtUtils;
+import com.star.util.EncryptionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -13,24 +13,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 @Slf4j
 @Component
 public class TokenInterceptor extends HandlerInterceptorAdapter {
 
-    private static final String INTERCEPT_ADDRESS = "/api/open-ai/chat/sse";
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (!Objects.equals(request.getServletPath(), INTERCEPT_ADDRESS)) {
-            return true;
-        }
         log.info("-----------正在进行Token解密");
         String token = getString(request.getParameter("token"));
-        if (OpenAiJwtUtils.validateToken(token)) {
-            WebAppSession.setUserName(OpenAiJwtUtils.getUserNameFromJwtClaims(token));
-            WebAppSession.setApiKey(OpenAiJwtUtils.getApiKeyFromJwtClaims(token));
+        if (JwtUtils.validateToken(token)) {
+            WebAppSession.setUserName(JwtUtils.getUserNameFromJwtClaims(token));
+            WebAppSession.setApiKey(JwtUtils.getApiKeyFromJwtClaims(token));
             return true;
         } else {
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -49,14 +43,18 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
             }
             return false;
         }
+    }
 
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        WebAppSession.destroy();
     }
 
     private static String getString(String ciphertext) {
-        SecurityUtil securityUtil;
+        EncryptionUtil encryptionUtil;
         try {
-            securityUtil = new SecurityUtil();
-            return securityUtil.decrypt(ciphertext);
+            encryptionUtil = new EncryptionUtil();
+            return encryptionUtil.decrypt(ciphertext);
         } catch (Exception e) {
             log.info("-----------token解密异常");
             throw new RuntimeException(e);

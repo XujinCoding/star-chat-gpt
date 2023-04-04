@@ -11,8 +11,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+/**
+ * @author XuJ
+ */
 @Slf4j
-public class OpenAiJwtUtils {
+public class JwtUtils {
     private static final long EXPIPE_TIME=3600 * 1000 * 24;
     /**
      * 加密时候用  是对称的秘钥盐
@@ -102,14 +105,5 @@ public class OpenAiJwtUtils {
     }
     public static String getUserNameFromJwtClaims(String token) {
         return getClaimsFromJwt(token).get("userName",String.class);
-    }
-
-    public static void main(String[] args) {
-        String jwtToken = createJwtToken(new Jwt("1111111"));
-        System.out.println("JWT Token: " + jwtToken);
-        System.out.println("=======================================================");
-
-        Claims claims = getClaimsFromJwt(jwtToken);
-        System.out.println("claims: " + claims);
     }
 }

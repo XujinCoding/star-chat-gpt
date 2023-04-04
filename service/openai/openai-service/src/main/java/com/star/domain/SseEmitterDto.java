@@ -1,6 +1,6 @@
 package com.star.domain;
 
-import com.star.session.MessageAppSession;
+import com.star.web.session.MessageAppSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 

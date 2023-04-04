@@ -1,4 +1,4 @@
-package com.star.domain;
+package com.star.web.session;
 
 
 import lombok.extern.slf4j.Slf4j;

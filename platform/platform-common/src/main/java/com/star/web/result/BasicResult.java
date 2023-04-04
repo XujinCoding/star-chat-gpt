@@ -1,4 +1,4 @@
-package com.star.domain;
+package com.star.web.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

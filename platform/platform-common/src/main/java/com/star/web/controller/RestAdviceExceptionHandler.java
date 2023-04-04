@@ -1,8 +1,8 @@
-package com.star.controller;
+package com.star.web.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.star.domain.BasicResult;
+import com.star.web.result.BasicResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;

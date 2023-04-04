@@ -1,0 +1,3 @@
+dependencies {
+    implementation group: 'com.github.plexpt', name: 'chatgpt', version: '4.0.5'
+}

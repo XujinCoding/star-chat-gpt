@@ -1,6 +1,6 @@
-package com.star.controller;
+package com.star.web.controller;
 
-import com.star.domain.BasicResult;
+import com.star.web.result.BasicResult;
 import org.springframework.http.HttpStatus;
 
 /**

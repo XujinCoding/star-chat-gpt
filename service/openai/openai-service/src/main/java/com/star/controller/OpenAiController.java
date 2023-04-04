@@ -1,10 +1,12 @@
 package com.star.controller;
 
 import com.star.domain.*;
-import com.star.session.MessageAppSession;
-import com.star.session.WebAppSession;
-import com.star.util.OpenAiJwtUtils;
-import com.star.util.SecurityUtil;
+import com.star.web.controller.BasicController;
+import com.star.web.result.BasicResult;
+import com.star.web.session.MessageAppSession;
+import com.star.web.session.WebAppSession;
+import com.star.util.JwtUtils;
+import com.star.util.EncryptionUtil;
 import com.plexpt.chatgpt.ChatGPT;
 import com.plexpt.chatgpt.ChatGPTStream;
 import com.plexpt.chatgpt.entity.chat.Message;
@@ -23,16 +25,13 @@ import java.util.List;
 @RequestMapping("/api/open-ai")
 public class OpenAiController extends BasicController {
     private static final Proxy PROXY = Proxys.http("127.0.0.1", 13764);
-    private static final String KEY = "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";
-
 
     private static final MessageMap MESSAGE_MAP = new MessageMap();
 
     @RequestMapping(value = "/message/{message}", method = RequestMethod.GET)
     private BasicResult getAnswerByMessage(@PathVariable("message") String message) {
         System.out.println("访问成功");
-        ChatGPT chatGPT = ChatGPT.builder().apiKey(KEY).proxy(PROXY).apiHost("https://api.openai.com/").build().init();
-
+        ChatGPT chatGPT = ChatGPT.builder().apiKey(WebAppSession.getApiKey()).proxy(PROXY).apiHost("https://api.openai.com/").build().init();
         return buildDefaultObject(chatGPT.chat(message));
     }
 
@@ -69,8 +68,8 @@ public class OpenAiController extends BasicController {
     public BasicResult getToken(Jwt jwt) {
         log.info("-----------------正在获取Token");
         try {
-            SecurityUtil securityUtil = new SecurityUtil();
-            return buildDefaultObject(securityUtil.encrypt(OpenAiJwtUtils.createJwtToken(jwt)));
+            EncryptionUtil encryptionUtil = new EncryptionUtil();
+            return buildDefaultObject(encryptionUtil.encrypt(JwtUtils.createJwtToken(jwt)));
         } catch (Exception ignored) {
             throw new RuntimeException("获取token失败");
         }

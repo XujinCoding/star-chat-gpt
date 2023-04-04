@@ -1,13 +1,9 @@
-package com.star.session;
-
-import com.star.domain.OpenAiSessionAttribute;
+package com.star.web.session;
 
 /**
  * @author XuJ
  */
 public class AppSession {
-
-
     private static final ThreadLocal<OpenAiSessionAttribute> SESSION_ATTRIBUTE = new ThreadLocal<>();
 
     public static OpenAiSessionAttribute getSessionAttribute() {
@@ -15,5 +11,8 @@ public class AppSession {
             SESSION_ATTRIBUTE.set(new OpenAiSessionAttribute());
         }
         return SESSION_ATTRIBUTE.get();
+    }
+    public static void destroy() {
+        SESSION_ATTRIBUTE.remove();
     }
 }

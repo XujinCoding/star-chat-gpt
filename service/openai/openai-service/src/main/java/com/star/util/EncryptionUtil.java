@@ -1,7 +1,5 @@
 package com.star.util;
 
-import com.alibaba.fastjson.JSON;
-import com.star.domain.Jwt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +10,7 @@ import java.security.Key;
 
 @Slf4j
 @Component
-public class SecurityUtil {
+public class EncryptionUtil {
     private static String strDefaultKey = "UvVi-s`75X-d9fO3";
 
     /** 加密工具 */
@@ -102,7 +100,7 @@ public class SecurityUtil {
      *
      * @throws Exception
      */
-    public SecurityUtil() throws Exception {
+    public EncryptionUtil() throws Exception {
         this("AES/ECB/PKCS5Padding", strDefaultKey, 128);
     }
 
@@ -112,7 +110,7 @@ public class SecurityUtil {
      * @param strKey  指定的密钥
      * @throws Exception
      */
-    public SecurityUtil(String algorithmName, String strKey, int keySizeInBits) throws Exception {
+    public EncryptionUtil(String algorithmName, String strKey, int keySizeInBits) throws Exception {
         this.algorithmName = algorithmName;
         this.key = getKey(strKey.getBytes(StandardCharsets.UTF_8), keySizeInBits);
     }
@@ -195,13 +193,5 @@ public class SecurityUtil {
         }
 
         return new SecretKeySpec(arrB, keyAlg);
-    }
-
-    public static void main(String[] args) throws Exception {
-        Jwt jwt = new Jwt("1","123","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");
-        SecurityUtil securityUtil = new SecurityUtil();
-        String decrypt = securityUtil.encrypt(JSON.toJSONString(jwt));
-        System.out.println(decrypt);
-        System.out.println(securityUtil.decrypt(decrypt));
     }
 }

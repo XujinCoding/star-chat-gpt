@@ -11,11 +11,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     private static final String GET_TOKEN_ADDRESS = "/api/open-ai/token";
-    private static final String INTERCEPT_ADDRESS = "/api/open-ai/chat/sse";
-
+    private static final String INTERCEPT_ADDRESS = "/api/open-ai/**";
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new TokenInterceptor());
+        registry.addInterceptor(new TokenInterceptor()).addPathPatterns(INTERCEPT_ADDRESS).excludePathPatterns(GET_TOKEN_ADDRESS);
     }
 }

@@ -17,6 +17,10 @@ import java.util.Map;
 @Aspect
 @Component
 @Slf4j
+@Deprecated
+/**
+ * 目前没有使用, 标记为废弃
+ */
 public class AnswerAspect {
 
     @Pointcut("execution(* com.star.domain.SseEmitterDto.send(..))")

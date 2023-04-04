@@ -1,4 +1,4 @@
-package com.star.session;
+package com.star.web.session;
 
 /**
  * @author XuJ

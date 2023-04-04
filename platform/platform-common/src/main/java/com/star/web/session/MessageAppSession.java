@@ -1,4 +1,4 @@
-package com.star.session;
+package com.star.web.session;
 
 import com.alibaba.fastjson.JSON;
 import com.plexpt.chatgpt.entity.chat.Message;
